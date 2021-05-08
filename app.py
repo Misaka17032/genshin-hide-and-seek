@@ -51,12 +51,13 @@ while (time.time() - t) <= 60:
 		left, top, right, bottom = win32gui.GetWindowRect(ys_hwnd)
 		tb_height = get_title_bar_height(ys_hwnd)
 		bottom -= tb_height
-	if ratio != (right - left) / (bottom - top):
-		ratio = (right - left) / (bottom - top)
-		if ratio <= background.shape[1] / background.shape[0]:
-			img = cv2.resize(background, (0, 0), fx=(bottom - top) / background.shape[0], fy=(bottom - top) / background.shape[0], interpolation=cv2.INTER_AREA)[0:(bottom - top), 0:(right - left), :]
-		else:
-			img = cv2.resize(background, (0, 0), fx=(right - left) / background.shape[1], fy=(right - left) / background.shape[1], interpolation=cv2.INTER_AREA)[0:(bottom - top), 0:(right - left), :]
+	if bottom - top != 0:
+		if ratio != (right - left) / (bottom - top):
+			ratio = (right - left) / (bottom - top)
+			if ratio <= background.shape[1] / background.shape[0]:
+				img = cv2.resize(background, (0, 0), fx=(bottom - top) / background.shape[0], fy=(bottom - top) / background.shape[0], interpolation=cv2.INTER_AREA)[0:(bottom - top), 0:(right - left), :]
+			else:
+				img = cv2.resize(background, (0, 0), fx=(right - left) / background.shape[1], fy=(right - left) / background.shape[1], interpolation=cv2.INTER_AREA)[0:(bottom - top), 0:(right - left), :]
 	font_size = int((bottom - top) / 7.5)
 	mask = add_text(img, "距离游戏开始还有" + str(int(60 + t - time.time())) + "秒", 10, (bottom - top) // 2 - font_size // 2, (115, 201, 229), font_size)
 	cv2.imshow("mask", mask)
@@ -64,7 +65,7 @@ while (time.time() - t) <= 60:
 	win32gui.ShowWindow(mask_hwnd, win32con.SW_SHOWNORMAL)
 	win32gui.SetWindowPos(mask_hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOACTIVATE | win32con.SWP_NOOWNERZORDER | win32con.SWP_SHOWWINDOW | win32con.SWP_NOSIZE)
 	cv2.waitKey(1)
-	time.sleep(0.05)
+	time.sleep(0.02)
 t = time.time()
 left = top = right = bottom = None
 while (time.time() - t) <= 180:
@@ -72,36 +73,39 @@ while (time.time() - t) <= 180:
 		left, top, right, bottom = win32gui.GetWindowRect(ys_hwnd)
 		tb_height = get_title_bar_height(ys_hwnd)
 		bottom -= tb_height
-		side = int((bottom - top) / 5.5)
+	if bottom - top != 0:
+		side = int((bottom - top) / 5)
 		img = np.ones((side, side, 3), np.uint8) * 255
-	mask = img.copy()
-	font_size = int(side / 7.5)
-	mask = add_text(img, "距离限制解除", 10, side // 2 - font_size // 2, (251, 114, 153), font_size)
-	mask = add_text(mask, "还有" + str(int(180 + t - time.time())) + "秒", 10, side // 2 + font_size // 2, (251, 114, 153), font_size)
+		mask = img.copy()
+		font_size = int(side / 7.5)
+		mask = add_text(img, "距离限制解除", 10, int(side / 2 - font_size * 5 / 4), (251, 114, 153), font_size)
+		mask = add_text(mask, "还有" + str(int(180 + t - time.time())) + "秒", 10, int(side / 2 - font_size * 1 / 4), (251, 114, 153), font_size)
 	cv2.imshow("mask", mask)
 	cv2.moveWindow("mask", left + (right - left) // 40, top + tb_height)
 	win32gui.ShowWindow(mask_hwnd, win32con.SW_SHOWNORMAL)
 	win32gui.SetWindowPos(mask_hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOACTIVATE | win32con.SWP_NOOWNERZORDER | win32con.SWP_SHOWWINDOW | win32con.SWP_NOSIZE)
 	cv2.waitKey(1)
-	time.sleep(0.05)
+	time.sleep(0.02)
 cv2.imshow("mask", np.ones((1, 1, 3), np.uint8) * 255)
 time.sleep(5)
 t = time.time()
+left = top = right = bottom = None
 while (time.time() - t) <= 60:
 	if (left, top, right, bottom) != win32gui.GetWindowRect(ys_hwnd):
 		left, top, right, bottom = win32gui.GetWindowRect(ys_hwnd)
 		tb_height = get_title_bar_height(ys_hwnd)
 		bottom -= tb_height
-		side = int((bottom - top) / 5.5)
+	if bottom - top != 0:
+		side = int((bottom - top) / 5)
 		img = np.ones((side, side, 3), np.uint8) * 255
-	mask = img.copy()
-	font_size = int(side / 7.5)
-	mask = add_text(img, "距离游戏结束", 10, side // 2 - font_size // 2, (251, 114, 153), font_size)
-	mask = add_text(mask, "还有" + str(int(60 + t - time.time())) + "秒", 10, side // 2 + font_size // 2, (251, 114, 153), font_size)
+		mask = img.copy()
+		font_size = int(side / 7.5)
+		mask = add_text(img, "距离游戏结束", 10, int(side / 2 - font_size * 5 / 4), (251, 114, 153), font_size)
+		mask = add_text(mask, "还有" + str(int(60 + t - time.time())) + "秒", 10, int(side / 2 - font_size * 1 / 4), (251, 114, 153), font_size)
 	cv2.imshow("mask", mask)
 	cv2.moveWindow("mask", left + (right - left) // 40, top + tb_height)
 	win32gui.ShowWindow(mask_hwnd, win32con.SW_SHOWNORMAL)
 	win32gui.SetWindowPos(mask_hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOACTIVATE | win32con.SWP_NOOWNERZORDER | win32con.SWP_SHOWWINDOW | win32con.SWP_NOSIZE)
 	cv2.waitKey(1)
-	time.sleep(0.05)
+	time.sleep(0.02)
 cv2.destroyAllWindows()
